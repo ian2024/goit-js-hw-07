@@ -1,7 +1,9 @@
 import { galleryItems } from './gallery-items.js';
 
 
-const gallery = document.querySelector('.gallery');
+const refs = {
+gallery: document.querySelector('.gallery'),
+};
 
 function createImageGallery(galleryItems) {
     return galleryItems.map(({preview, original, description}) => {
@@ -17,8 +19,8 @@ function createImageGallery(galleryItems) {
     }).join("");
 };
 
-gallery.insertAdjacentHTML("beforeend", createImageGallery(galleryItems));
-gallery.addEventListener("click", zoomOnClick);
+refs.gallery.insertAdjacentHTML("beforeend", createImageGallery(galleryItems));
+refs.gallery.addEventListener("click", zoomOnClick);
 
 function zoomOnClick(e) {
 const isImgEl = e.target.classList.contains('gallery__image');
@@ -29,13 +31,16 @@ const isImgEl = e.target.classList.contains('gallery__image');
     
     const largeImgLink = e.target.dataset.source;
     const instance = basicLightbox.create(`
-    <img src="${largeImgLink}" alt="${e.target.alt}">`)
+    <img src="${largeImgLink}" alt="${e.target.alt}">`, {onClose: (instance) => {
+        refs.gallery.removeEventListener("keydown", escape); 
+    }})
     instance.show();
-    
-    gallery.addEventListener("keydown", e => {
+
+    function escape(e) {
         if (e.key === 'Escape') {
             instance.close();
         }
-        e.preventDefault();
-    });
+    }
+    
+    refs.gallery.addEventListener("keydown", escape); 
 }
